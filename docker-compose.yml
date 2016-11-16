@@ -1,18 +1,20 @@
+consul:
+  container_name: consul
+  image: linyows/consul:0.7
+  ports:
+    - 8400:8400
+    - 8500:8500
+    - 8600:8600/udp
+  volumes:
+    - ./consul/server/config:/config
+  command: [agent, -server, -bootstrap, -ui-dir, /ui, -data-dir, /tmp]
 vault:
-  build: vault/
+  container_name: vault
+  image: linyows/vault:0.6
   ports:
     - 8200:8200
   links:
     - consul:consul
   volumes:
-    - ./config:/config
-  command: server -config=/config/consul.hcl
-consul:
-  build: consul-agent/
-  ports:
-    - 8400:8400
-    - 8500:8500
-    - 8600:53/udp
-  command: consul -server -bootstrap -ui-dir /ui
-centos:
-  build: centos/
+    - ./vault/config:/config
+  command: [server, -config=/config/consul.hcl]
