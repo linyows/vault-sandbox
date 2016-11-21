@@ -2,9 +2,9 @@ consul:
   container_name: consul
   image: linyows/consul:0.7
   ports:
-    - 8400:8400
-    - 8500:8500
-    - 8600:53/udp
+    - '8400:8400'
+    - '8500:8500'
+    - '8600:53/udp'
   volumes:
     - ./consul/server/config:/config
   command: [agent, -server, -bootstrap, -ui-dir, /ui, -data-dir, /tmp, -config-dir, /config]
@@ -12,7 +12,7 @@ vault:
   container_name: vault
   image: linyows/vault:0.6
   ports:
-    - 8200:8200
+    - '8200:8200'
   links:
     - consul:consul
     - mysql:mysql
@@ -21,9 +21,9 @@ vault:
   command: [server, -config=/config/vault.consul.conf]
 sshd:
   container_name: sshd
-  build: sshd/
+  image: linyows/sshd-vault:0.1
   ports:
-    - 2222:22
+    - '2222:22'
   links:
     - vault:vault
 mysql:
@@ -32,18 +32,18 @@ mysql:
   environment:
     MYSQL_ROOT_PASSWORD: secret
   ports:
-    - 13306:3306
-rails:
-  image: linyows/rails:5.0
-  volumes:
-    - ./rails:/app
-  links:
-    - vault:vault
-    - mysql:mysql
-laravel:
-  image: linyows/laravel:5.3
-  volumes:
-    - ./laravel:/app
-  links:
-    - vault:vault
-    - mysql:mysql
+    - '13306:3306'
+#rails:
+#  image: linyows/rails:5.0
+#  volumes:
+#    - ./rails:/app
+#  links:
+#    - vault:vault
+#    - mysql:mysql
+#laravel:
+#  image: linyows/laravel:5.3
+#  volumes:
+#    - ./laravel:/app
+#  links:
+#    - vault:vault
+#    - mysql:mysql

@@ -1,10 +1,10 @@
-FROM alpine:latest
+FROM ubuntu:latest
 MAINTAINER linyows <linyows@gmail.com>
 
 ENV VAULT_SSH_HELPER_VERSION 0.1.2
 ENV VAULT_SSH_HELPER_SHA256 bfe5efd19ea5e0f6b45e60f9631620314a8cbe8e829c6fb3ba7ca6875dc6b37b
 
-RUN apk --no-cache add openssh openssl curl ca-certificates && \
+RUN apt-get -yy update && apt-get -yy install ssh openssl curl ca-certificates bash unzip && \
     curl -sSL https://releases.hashicorp.com/vault-ssh-helper/${VAULT_SSH_HELPER_VERSION}/vault-ssh-helper_${VAULT_SSH_HELPER_VERSION}_linux_amd64.zip -o /tmp/vault_ssh_helper.zip && \
     echo "${VAULT_SSH_HELPER_SHA256}  /tmp/vault_ssh_helper.zip" > /tmp/vault_ssh_helper.sha256 && \
     sha256sum -c /tmp/vault_ssh_helper.sha256 && \
@@ -12,14 +12,19 @@ RUN apk --no-cache add openssh openssl curl ca-certificates && \
     unzip /tmp/vault_ssh_helper.zip && \
     chmod +x /bin/vault-ssh-helper && \
     rm /tmp/vault_ssh_helper.zip && \
-    mkdir /etc/vault-ssh-helper.d && \
-    ssh-keygen -A && \
-    echo "root:root" | chpasswd
-
-EXPOSE 22
+    mkdir /etc/vault-ssh-helper.d
 
 ADD ./config.hcl /etc/vault-ssh-helper.d/config.hcl
 ADD ./pam.sshd /etc/pam.d/sshd
-ADD ./sshd_config /etc/ssh/sshd_config
+COPY entry.sh /entry.sh
 
-ENTRYPOINT ["/usr/sbin/sshd", "-D"]
+RUN mkdir /var/run/sshd && \
+    chmod +x /entry.sh && \
+    useradd ubuntu -s /bin/bash && \
+    echo "ChallengeResponseAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    ssh-keygen -A
+
+EXPOSE 22
+
+CMD ["/entry.sh"]

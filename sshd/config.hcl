@@ -1,2 +1,3 @@
-vault_addr = "http://vault:8200"
+vault_addr = "https://vault:8200"
 ssh_mount_point = "ssh"
+tls_skip_verify=true
