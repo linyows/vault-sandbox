@@ -1,11 +1,23 @@
 Docker Vault
 ============
 
-vault testing
+use docker-compose:
 
-```
+```sh
 $ docker-compose run -d
-$ docker exec -it vault /bin/ash
+```
+
+use vault client or on mac:
+
+```sh
+$ brew install vault
+$ export VAULT_ADDR=$(docker-machine ip dev):8200
+$ export VAULT_SKIP_VERIFY=true
+```
+
+setup:
+
+```sh
 / # vault init
 Unseal Key 1: 1/iBMPdC/UIvKl0JvGJHZNjiZSxeEXKbENum0Ota5z4B
 Unseal Key 2: NfJJ/+g6z+2zfElftgPH1RbjZyXXK6xHdty79N/rX6oC
@@ -46,13 +58,13 @@ Key Threshold: 3
 Unseal Progress: 0
 Version: 0.6.2
 Cluster Name: vault-cluster-6f314143
-Cluster ID: 113be374-251e-5261-d343-0e76ae713d51
+Cluster ID: f9b4c398-889b-902a-c652-65368999a46a
 
 High-Availability Enabled: true
         Mode: active
-        Leader: http://127.0.0.1:8200
-/ # read -s token
-/ # vault auth $token
+        Leader: https://vault.node.consul:8200
+/ # vault auth
+Key (will be hidden):
 Successfully authenticated! You are now logged in.
 token: 10283f97-bc50-229e-5771-b4f3f9996457
 token_duration: 0
@@ -64,43 +76,35 @@ secret/     generic    system       system   generic secret storage
 sys/        system     n/a          n/a      system endpoints used for control, policy and debugging
 ```
 
-consul-server
--------------
+show logs on vault container:
 
 ```sh
-$ docker run -d --hostname consul --name consul \
-    -p 8400:8400 -p 8500:8500 -p 8600:53/udp \
-    -v $PWD/consul/server/config:/config \
-    linyows/consul:0.7 agent -server -bootstrap -ui-dir /ui -data-dir /tmp/consul -config-dir=/config
+$ docker exec -it vault /bin/ash
+$ tail /tmp/vault.log
+$ tail /tmp/consul.log
+$ tail /tmp/statsite.log
 ```
 
-vault
------
+ssh to container:
 
 ```sh
-$ docker run -d --name vault --hostname vault \
-    -p 8200:8200 \
-    --link consul:consul \
-    -v $PWD/vault/config:/config \
-    linyows/vault:0.6 server -config=/config/consul.hcl
-```
+$ vault mount ssh
+Successfully mounted 'ssh' at 'ssh'!
+$ vault write ssh/roles/otp_key_role key_type=otp default_user=ubuntu cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
+$ vault write ssh/creds/otp_key_role ip=192.168.99.1
+Key             Value
+---             -----
+lease_id        ssh/creds/otp_key_role/aa0e0fbc-3be4-8ddf-8097-a5cb94cf3126
+lease_duration  768h0m0s
+lease_renewable false
+ip              192.168.99.1
+key             a6cbd37f-8522-f86c-1a00-8d44e5de438c
+key_type        otp
+port            22
+username        ubuntu
 
-sshd
-----
-
-```sh
-docker run -d --name sshd --hostname sshd \
-    -p 2222:22 \
-    --link vault:vault \
-    linyows/sshd-vault:0.1
-```
-
-mysql
------
-
-```sh
-docker run -d --name mysql --hostname mysql \
-    -p 13306:3306 \
-    -e MYSQL_ROOT_PASSWORD=secret \
-    library/mysql:5.7
+$ ssh ubuntu@$(docker-machine ip dev) -p 2222
+ubuntu@192.168.99.100's password:
+Could not chdir to home directory /home/ubuntu: No such file or directory
+ubuntu@sshd:/$
 ```
