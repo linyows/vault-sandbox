@@ -1,5 +1,5 @@
-Docker Vault
-============
+Vault Sandbox on Docker
+=======================
 
 use docker-compose:
 
@@ -11,7 +11,7 @@ use vault client or on mac:
 
 ```sh
 $ brew install vault
-$ export VAULT_ADDR=$(docker-machine ip dev):8200
+$ export VAULT_ADDR=https://$(docker-machine ip dev):8200
 $ export VAULT_SKIP_VERIFY=true
 ```
 
@@ -74,6 +74,17 @@ Path        Type       Default TTL  Max TTL  Description
 cubbyhole/  cubbyhole  n/a          n/a      per-token private secret storage
 secret/     generic    system       system   generic secret storage
 sys/        system     n/a          n/a      system endpoints used for control, policy and debugging
+```
+
+show dns for vault with consul:
+
+```sh
+$ dig @$(docker-machine ip dev) -p 8600 standby.vault.service.consul. SRV +short
+$ dig @$(docker-machine ip dev) -p 8600 active.vault.service.consul. SRV +short
+1 1 8200 vault.node.dc1.consul.
+$ dig @$(docker-machine ip dev) -p 8600 vault.service.consul. +short
+vault.node.consul.
+172.17.0.4
 ```
 
 show logs on vault container:
