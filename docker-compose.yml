@@ -38,18 +38,27 @@ sshd:
 mysql:
   hostname: mysql
   container_name: mysql
-  image: library/mysql:5.7
+  image: linyows/alpine-mysql:latest
   environment:
-    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: app
+    MYSQL_USER: vault
+    MYSQL_PASSWORD: secret
   ports:
-    - '13306:3306'
-#rails:
-#  image: linyows/rails:5.0
-#  volumes:
-#    - ./rails:/app
-#  links:
-#    - vault:vault
-#    - mysql:mysql
+    - '33306:3306'
+  command: ['/entry.sh']
+rails:
+  hostname: rails
+  container_name: rails
+  image: linyows/vault-rails:latest
+  volumes:
+    - ./rails/app:/app
+  ports:
+    - '3000:3000'
+  links:
+    - vault:vault
+    - mysql:mysql
+  command: [supervisord, --nodaemon, --configuration, /supervisord.conf]
 #laravel:
 #  image: linyows/laravel:5.3
 #  volumes:

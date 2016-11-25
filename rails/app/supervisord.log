@@ -1,0 +1,11 @@
+2016-11-25 09:14:54,405 CRIT Supervisor running as root (no user in config file)
+2016-11-25 09:14:54,408 INFO supervisord started with pid 1
+2016-11-25 09:14:55,413 INFO spawned: 'rails' with pid 10
+2016-11-25 09:14:56,929 INFO success: rails entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2016-11-25 09:15:02,342 WARN received SIGINT indicating exit request
+2016-11-25 09:15:02,342 INFO waiting for rails to die
+2016-11-25 09:15:03,345 INFO stopped: rails (terminated by SIGTERM)
+2016-11-25 09:15:18,447 CRIT Supervisor running as root (no user in config file)
+2016-11-25 09:15:18,456 INFO supervisord started with pid 1
+2016-11-25 09:15:19,459 INFO spawned: 'rails' with pid 12
+2016-11-25 09:15:20,989 INFO success: rails entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
