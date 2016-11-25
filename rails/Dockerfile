@@ -20,7 +20,6 @@ RUN gem install -N nokogiri -- --use-system-libraries && \
     bundle config --global build.nokogiri  "--use-system-libraries" && \
     bundle config --global build.nokogumbo "--use-system-libraries"
 
-WORKDIR /app
 VOLUME "/app"
 ADD supervisord.conf /supervisord.conf
 
