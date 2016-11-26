@@ -11,7 +11,7 @@ use vault client or on mac:
 
 ```sh
 $ brew install vault
-$ export VAULT_ADDR=https://$(docker-machine ip dev):8200
+$ export VAULT_ADDR=https://$(./hostport --address vaultsandbox_vault_1 8200)
 $ export VAULT_SKIP_VERIFY=true
 ```
 
@@ -79,10 +79,10 @@ sys/        system     n/a          n/a      system endpoints used for control, 
 show dns for vault with consul:
 
 ```sh
-$ dig @$(docker-machine ip dev) -p 8600 standby.vault.service.consul. SRV +short
-$ dig @$(docker-machine ip dev) -p 8600 active.vault.service.consul. SRV +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) standby.vault.service.consul. SRV +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) active.vault.service.consul. SRV +short
 1 1 8200 vault.node.dc1.consul.
-$ dig @$(docker-machine ip dev) -p 8600 vault.service.consul. +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) vault.service.consul. +short
 vault.node.consul.
 172.17.0.4
 ```
@@ -114,7 +114,7 @@ key_type        otp
 port            22
 username        ubuntu
 
-$ ssh ubuntu@$(docker-machine ip dev) -p 2222
+$ ssh ubuntu@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_sshd_1 22)
 ubuntu@192.168.99.100's password:
 Could not chdir to home directory /home/ubuntu: No such file or directory
 ubuntu@sshd:/$

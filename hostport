@@ -1,0 +1,45 @@
+#!/bin/bash
+
+declare -a argv=()
+ADDRESS=0
+
+while (( $# > 0 )); do
+  case "$1" in
+    '--address')
+      ADDRESS=1
+      shift
+      ;;
+    *)
+      argv=("${argv[@]}" "$1")
+      shift
+      ;;
+  esac
+done
+
+INSTANCE_ID=${argv[0]}
+INSTANCE_PORT=${argv[1]}
+
+if [ "$INSTANCE_ID" == "" ]; then
+  CMDNAME=`basename $0`
+  echo "Usage: $CMDNAME [--address] INSTANCE_ID [INSTANCE_PORT]" 1>&2
+  exit 2
+fi
+
+if [ "$INSTANCE_PORT" == "" ]; then
+  docker port $INSTANCE_ID
+else
+  # docs
+  # https://docs.docker.com/engine/reference/commandline/inspect/
+  PORT=$(docker inspect -f "{{ (index (index .NetworkSettings.Ports \"$INSTANCE_PORT/tcp\") 0).HostPort }}" $INSTANCE_ID 2>/dev/null)
+
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
+
+  if [ $ADDRESS -eq 0 ]; then
+    echo -n "$PORT"
+  else
+    IP=$(docker-machine ip $DOCKER_MACHINE_NAME)
+    echo -n "$IP:$PORT"
+  fi
+fi
