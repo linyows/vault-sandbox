@@ -1,3 +1,6 @@
-#!/bin/bash
+#!/bin/ash
 
-exec /usr/sbin/sshd -E /var/log/auth.log -D
+ssh-keygen -A
+
+# do not detach (-D), log to stderr (-e), passthrough other arguments
+exec /usr/sbin/sshd -D -e "$@"

@@ -14,4 +14,4 @@ RUN apk --no-cache add curl ca-certificates bind-tools && \
     chmod +x /bin/consul && \
     rm /tmp/consul.zip /tmp/consul.sha256
 
-CMD ["/bin/consul"]
+EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp

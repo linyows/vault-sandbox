@@ -1,9 +1,10 @@
-FROM linyows/consul:0.6
+FROM linyows/consul:0.7
 MAINTAINER linyows <linyows@gmail.com>
 
-ENV DNS_RESOLVES consul
-ENV DNS_PORT 8600
+RUN apk --no-cache add supervisor
 
-ADD ./config /config/
-EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 8600 8600/udp
-ENTRYPOINT ["/bin/consul", "agent", "-config-dir=/config"]
+COPY consul.d /etc/consul.d
+COPY supervisor.d /etc/supervisor.d
+COPY supervisord.conf /etc/supervisord.conf
+
+CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
