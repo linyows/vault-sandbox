@@ -13,8 +13,18 @@ vault:
   links:
     - consul
     - mysql
-sshd:
-  build: ./sshd
+sshd_ubuntu:
+  build: ./sshd/ubuntu
+  ports:
+    - 22
+  dns:
+    - '127.0.0.1'
+    - '8.8.8.8'
+  links:
+    - consul
+    - vault
+sshd_centos:
+  build: ./sshd/centos
   ports:
     - 22
   dns:
