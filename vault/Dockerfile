@@ -1,9 +1,9 @@
-FROM linyows/consul:agent-0.7
+FROM linyows/consul:0.7-agent
 MAINTAINER linyows <linyows@gmail.com>
 
 ENV VAULT_VERSION 0.6.2
 ENV VAULT_SHA256 91432c812b1264306f8d1ecf7dd237c3d7a8b2b6aebf4f887e487c4e7f69338c
-ENV VAULT_ADDR https://vault.node.consul:8200
+ENV VAULT_ADDR https://127.0.0.1:8200
 ENV VAULT_REDIRECT_ADDR https://vault.node.consul:8200
 ENV VAULT_CLUSTER_ADDR https://vault.node.consul:8201
 ENV VAULT_SKIP_VERIFY true

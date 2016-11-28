@@ -1,17 +1,10 @@
 consul:
-  image: linyows/consul:0.7
-  ports:
-    - 8400
-    - 8500
-    - '53/udp'
+  build: ./consul/server
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
-  volumes:
-    - ./consul/server/config:/config
-  command: [consul, agent, -server, -bootstrap, -ui-dir, /ui, -data-dir, /tmp, -config-dir, /config]
 vault:
-  image: linyows/vault:0.6
+  build: ./vault
   ports:
     - 8200
   dns:
@@ -20,17 +13,18 @@ vault:
   links:
     - consul
     - mysql
-  volumes:
-    - ./vault/config:/config
-  command: [supervisord, --nodaemon, --configuration, /config/supervisord.conf]
 sshd:
-  image: linyows/sshd-vault:0.1
+  build: ./sshd
   ports:
     - 22
+  dns:
+    - '127.0.0.1'
+    - '8.8.8.8'
   links:
+    - consul
     - vault
 mysql:
-  image: linyows/alpine-mysql:latest
+  build: ./mysql
   environment:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: app
@@ -38,17 +32,24 @@ mysql:
     MYSQL_PASSWORD: secret
   ports:
     - 3306
-  command: ['/entry.sh']
+  dns:
+    - '127.0.0.1'
+    - '8.8.8.8'
+  links:
+    - consul
 rails:
-  image: linyows/vault-rails:latest
+  build: ./rails
   volumes:
     - ./rails/app:/app
   ports:
     - 3000
+  dns:
+    - '127.0.0.1'
+    - '8.8.8.8'
   links:
+    - consul
     - vault
     - mysql
-  command: [supervisord, --nodaemon, --configuration, /supervisord.conf]
 #laravel:
 #  image: linyows/laravel:5.3
 #  volumes:
@@ -56,3 +57,4 @@ rails:
 #  links:
 #    - vault:vault
 #    - mysql:mysql
+#  command: [supervisord, --nodaemon, --configuration=/etc/supervisord.conf]

@@ -15,6 +15,9 @@ $ export VAULT_ADDR=https://$(./hostport --address vaultsandbox_vault_1 8200)
 $ export VAULT_SKIP_VERIFY=true
 ```
 
+Init VAULT
+----------
+
 setup:
 
 ```sh
@@ -87,21 +90,15 @@ vault.node.consul.
 172.17.0.4
 ```
 
-show logs on vault container:
-
-```sh
-$ docker exec -it vault /bin/ash
-$ tail /tmp/vault.log
-$ tail /tmp/consul.log
-$ tail /tmp/statsite.log
-```
+SSH
+---
 
 ssh to container:
 
 ```sh
 $ vault mount ssh
 Successfully mounted 'ssh' at 'ssh'!
-$ vault write ssh/roles/otp_key_role key_type=otp default_user=ubuntu cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
+$ vault write ssh/roles/otp_key_role key_type=otp default_user=centos cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
 $ vault write ssh/creds/otp_key_role ip=192.168.99.1
 Key             Value
 ---             -----
@@ -112,10 +109,14 @@ ip              192.168.99.1
 key             a6cbd37f-8522-f86c-1a00-8d44e5de438c
 key_type        otp
 port            22
-username        ubuntu
+username        centos
 
-$ ssh ubuntu@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_sshd_1 22)
-ubuntu@192.168.99.100's password:
-Could not chdir to home directory /home/ubuntu: No such file or directory
-ubuntu@sshd:/$
+$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+  centos@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_sshd_1 22)
+centos@192.168.99.100's password:
+Could not chdir to home directory /home/centos: No such file or directory
+centos@sshd:/$
 ```
+
+MySQL
+-----

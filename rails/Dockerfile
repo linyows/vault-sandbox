@@ -1,13 +1,5 @@
-FROM alpine:latest
+FROM linyows/consul:0.7-agent
 MAINTAINER linyows <linyows@gmail.com>
-
-ENV PYTHON_VERSION 2.7.12-r0
-ENV PY_PIP_VERSION 8.1.2-r0
-ENV SUPERVISOR_VERSION 3.3.1
-
-RUN apk --no-cache add python=$PYTHON_VERSION py-pip=$PY_PIP_VERSION && \
-    pip install --upgrade pip && \
-    pip install supervisor==$SUPERVISOR_VERSION
 
 RUN apk --no-cache add curl-dev ruby-dev build-base git cmake \
                        ruby ruby-io-console ruby-json yaml mysql-client \
@@ -21,7 +13,6 @@ RUN gem install -N nokogiri -- --use-system-libraries && \
     bundle config --global build.nokogumbo "--use-system-libraries"
 
 VOLUME "/app"
-ADD supervisord.conf /supervisord.conf
+COPY supervisor.d/rails.ini /etc/supervisor.d/rails.ini
 
 EXPOSE 3000
-CMD ["supervisord", "--nodaemon", "--configuration", "/supervisord.conf"]
