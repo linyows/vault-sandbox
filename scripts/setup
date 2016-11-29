@@ -1,23 +1,27 @@
 #! /bin/bash
 
+set -e
+
 eval "$(cat scripts/env)"
 
-init_data=$(vault init)
-echo $init_data
+INIT_FILE=$(mktemp)
+echo "Init file: $INIT_FILE"
+cat $INIT_FILE
 
-for i in {0..3};do
-  key=$(echo $init_data | grep -i "unseal key $i:" | awk '{print $4}')
+vault init > $INIT_FILE
+
+for i in {1..3};do
+  key=$(cat $INIT_FILE | grep -i "unseal key $i:" | awk '{print $4}')
   vault unseal $key
 done
 
-token=$(echo $init_data | grep -i "root token:" | awk '{print $4}')
+token=$(cat $INIT_FILE | grep -i "root token:" | awk '{print $4}')
 vault auth $token
 
 vault audit-enable file path=/var/log/vault_audit.log
 
 vault mount ssh
-vault write ssh/roles/centos_otp key_type=otp default_user=centos cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
-vault write ssh/creds/centos_otp ip=192.168.99.1
+vault write ssh/roles/otp_ops key_type=otp default_user=ops cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
 
 vault mount mysql
 
