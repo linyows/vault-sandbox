@@ -11,7 +11,7 @@ use vault client or on mac:
 
 ```sh
 $ brew install vault
-$ export VAULT_ADDR=https://$(./hostport --address vaultsandbox_vault_1 8200)
+$ export VAULT_ADDR=https://$(scripts/hostport --address vaultsandbox_vault_1 8200)
 $ export VAULT_SKIP_VERIFY=true
 ```
 
@@ -82,10 +82,10 @@ sys/        system     n/a          n/a      system endpoints used for control, 
 show dns for vault with consul:
 
 ```sh
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) standby.vault.service.consul. SRV +short
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) active.vault.service.consul. SRV +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) standby.vault.service.consul. SRV +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) active.vault.service.consul. SRV +short
 1 1 8200 vault.node.dc1.consul.
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_consul_1 8600) vault.service.consul. +short
+$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) vault.service.consul. +short
 vault.node.consul.
 172.17.0.4
 ```
@@ -93,13 +93,18 @@ vault.node.consul.
 SSH
 ---
 
-ssh to container:
+ssh to container
 
 ```sh
 $ vault mount ssh
 Successfully mounted 'ssh' at 'ssh'!
-$ vault write ssh/roles/otp_key_role key_type=otp default_user=centos cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
-$ vault write ssh/creds/otp_key_role ip=192.168.99.1
+$ vault write ssh/roles/otp_ops key_type=otp default_user=ops cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
+```
+
+manualy:
+
+```sh
+$ vault write ssh/creds/otp_ops ip=192.168.99.1
 Key             Value
 ---             -----
 lease_id        ssh/creds/otp_key_role/aa0e0fbc-3be4-8ddf-8097-a5cb94cf3126
@@ -109,13 +114,20 @@ ip              192.168.99.1
 key             a6cbd37f-8522-f86c-1a00-8d44e5de438c
 key_type        otp
 port            22
-username        centos
+username        ops
 
 $ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-  centos@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(./hostport vaultsandbox_sshd_1 22)
-centos@192.168.99.100's password:
-Could not chdir to home directory /home/centos: No such file or directory
-centos@sshd:/$
+  ops@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_sshd_ubuntu_1 22)
+ops@192.168.99.100's password:
+ops@sshd:/$
+```
+
+auto:
+
+```sh
+$ brew install http://git.io/sshpass.rb
+$ vault ssh -roletp_ops -strict-host-key-checking=no \
+  ops@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_sshd_centos_1 22)
 ```
 
 MySQL
