@@ -19,9 +19,8 @@ ADD pam.d/sshd /etc/pam.d/sshd
 ADD entry.sh /entry.sh
 
 RUN mkdir /var/run/sshd && \
-    useradd ubuntu -s /bin/bash && \
+    useradd ops -s /bin/bash && \
     chmod +x /entry.sh && \
-    echo "+ : centos : 192.168." >> /etc/security/access.conf && \
     sed -ri 's/^SyslogFacility\s+.*/SyslogFacility AUTHPRIV/' /etc/ssh/sshd_config && \
     sed -ri 's/^LogLevel\s+.*/LogLevel VERBOSE/' /etc/ssh/sshd_config && \
     echo "ChallengeResponseAuthentication yes" >> /etc/ssh/sshd_config && \
