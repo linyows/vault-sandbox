@@ -12,10 +12,9 @@ RUN yum -y install openssh openssh-server unzip && \
     cd /bin && \
     unzip /tmp/vault_ssh_helper.zip && \
     chmod +x /bin/vault-ssh-helper && \
-    rm /tmp/vault_ssh_helper.zip /tmp/vault_ssh_helper.sha256 && \
-    mkdir /etc/vault-ssh-helper.d
+    rm /tmp/vault_ssh_helper.zip /tmp/vault_ssh_helper.sha256
 
-ADD vault-ssh-helper.d/config.hcl /etc/vault-ssh-helper.d/config.hcl
+ADD vault-ssh-helper.conf /etc/vault-ssh-helper.conf
 ADD pam.d/sshd /etc/pam.d/sshd
 ADD entry.sh /entry.sh
 
