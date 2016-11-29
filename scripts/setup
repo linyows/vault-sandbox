@@ -1,0 +1,28 @@
+#! /bin/bash
+
+eval "$(cat scripts/env)"
+
+init_data=$(vault init)
+echo $init_data
+
+for i in {0..3};do
+  key=$(echo $init_data | grep -i "unseal key $i:" | awk '{print $4}')
+  vault unseal $key
+done
+
+token=$(echo $init_data | grep -i "root token:" | awk '{print $4}')
+vault auth $token
+
+vault audit-enable file path=/var/log/vault_audit.log
+
+vault mount ssh
+vault write ssh/roles/centos_otp key_type=otp default_user=centos cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
+vault write ssh/creds/centos_otp ip=192.168.99.1
+
+vault mount mysql
+
+# vault auth-enable github
+# vault write auth/github/config organization=hashicorp
+# vault write auth/github/config base_url=https://github.mydomain.com/api/v3/
+# vault write auth/github/map/teams/root value=root
+
