@@ -34,7 +34,7 @@ sshd_centos:
     - consul
     - vault
 mysql:
-  build: ./mysql
+  image: mysql:5.7
   environment:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: app
@@ -42,11 +42,6 @@ mysql:
     MYSQL_PASSWORD: secret
   ports:
     - 3306
-  dns:
-    - '127.0.0.1'
-    - '8.8.8.8'
-  links:
-    - consul
 rails:
   build: ./rails
   volumes:

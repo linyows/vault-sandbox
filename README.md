@@ -132,3 +132,28 @@ $ vault ssh -roletp_ops -strict-host-key-checking=no \
 
 MySQL
 -----
+
+```sh
+$ vault write mysql/config/connection connection_url="root:root@tcp(mysql:3306)/"
+The following warnings were returned from the Vault server:
+* Read access to this endpoint should be controlled via ACLs as it will return the connection URL as it is, including passwords, if any.
+$ vault write mysql/config/lease lease=10m lease_max=1h
+Success! Data written to: mysql/config/lease
+$ vault write mysql/roles/readonly \
+  sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';"
+Success! Data written to: mysql/roles/readonly
+$ vault read mysql/creds/readonly
+Key             Value
+---             -----
+lease_id        mysql/creds/readonly/f94298b8-eb3f-9b92-e21b-d2de2f283b82
+lease_duration  30m0s
+lease_renewable true
+password        61a1e30a-3883-a3bd-b30f-82d96bb68db7
+username        read-root-f32607
+# mysql -uread-root-f32607 -hmysql -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MySQL connection id is 4
+Server version: 5.7.16 MySQL Community Server (GPL)
+Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.
+```
