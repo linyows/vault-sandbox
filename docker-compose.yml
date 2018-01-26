@@ -3,10 +3,13 @@ consul:
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
+  ports:
+    - '10053:53'
+    - '8500:8500'
 vault:
   build: ./vault
   ports:
-    - 8200
+    - '8200:8200'
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
@@ -16,7 +19,7 @@ vault:
 sshd_ubuntu:
   build: ./sshd/ubuntu
   ports:
-    - 22
+    - '10022:22'
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
@@ -26,7 +29,7 @@ sshd_ubuntu:
 sshd_centos:
   build: ./sshd/centos
   ports:
-    - 22
+    - '10222:22'
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
@@ -41,13 +44,13 @@ mysql:
     MYSQL_USER: vault
     MYSQL_PASSWORD: secret
   ports:
-    - 3306
+    - '13306:3306'
 rails:
   build: ./rails
   volumes:
     - ./rails/app:/app
   ports:
-    - 3000
+    - '3000:3000'
   dns:
     - '127.0.0.1'
     - '8.8.8.8'
