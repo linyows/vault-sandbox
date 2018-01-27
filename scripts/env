@@ -1,2 +1,2 @@
-export VAULT_ADDR=https://$(scripts/hostport --address vaultsandbox_vault_1 8200)
+export VAULT_ADDR=https://localhost:8200
 export VAULT_SKIP_VERIFY=true
