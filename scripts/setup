@@ -8,11 +8,11 @@ INIT_FILE=$(mktemp)
 echo "Init file: $INIT_FILE"
 cat $INIT_FILE
 
-vault init > $INIT_FILE
+vault operator init > $INIT_FILE
 
 for i in {1..3};do
   key=$(cat $INIT_FILE | grep -i "unseal key $i:" | awk '{print $4}')
-  vault unseal $key
+  vault operator unseal $key
 done
 
 token=$(cat $INIT_FILE | grep -i "root token:" | awk '{print $4}')
