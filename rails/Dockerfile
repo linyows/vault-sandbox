@@ -1,4 +1,4 @@
-FROM linyows/consul:0.7-agent
+FROM linyows/consul:1.0-agent
 MAINTAINER linyows <linyows@gmail.com>
 
 RUN apk --no-cache add curl-dev ruby-dev build-base git cmake \

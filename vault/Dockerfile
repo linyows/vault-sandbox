@@ -1,4 +1,4 @@
-FROM linyows/consul:0.7-agent
+FROM linyows/consul:1.0-agent
 MAINTAINER linyows <linyows@gmail.com>
 
 ENV VAULT_VERSION 0.6.2

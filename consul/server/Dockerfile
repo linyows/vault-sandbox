@@ -1,4 +1,4 @@
-FROM linyows/consul:0.7
+FROM linyows/consul:1.0
 MAINTAINER linyows <linyows@gmail.com>
 
 RUN apk --no-cache add supervisor

@@ -1,8 +1,8 @@
 FROM alpine:latest
 MAINTAINER linyows <linyows@gmail.com>
 
-ENV CONSUL_VERSION 0.7.1
-ENV CONSUL_SHA256 5dbfc555352bded8a39c7a8bf28b5d7cf47dec493bc0496e21603c84dfe41b4b
+ENV CONSUL_VERSION 1.0.3
+ENV CONSUL_SHA256 4782e4662de8effe49e97c50b1a1233c03c0026881f6c004144cc3b73f446ec5
 
 RUN apk --no-cache add curl ca-certificates bind-tools && \
     curl -sSL https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
