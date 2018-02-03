@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -e
 
 set -e
 
@@ -18,14 +18,12 @@ done
 token=$(cat $INIT_FILE | grep -i "root token:" | awk '{print $4}')
 vault auth $token
 
-vault audit-enable file path=/var/log/vault_audit.log
-
-vault mount ssh
+vault audit enable file path=/var/log/vault_audit.log
+vault secrets enable ssh
 vault write ssh/roles/otp_ops key_type=otp default_user=ops cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
+vault secrets enable database
 
-vault mount mysql
-
-# vault auth-enable github
+# vault auth enable github
 # vault write auth/github/config organization=hashicorp
 # vault write auth/github/config base_url=https://github.mydomain.com/api/v3/
 # vault write auth/github/map/teams/root value=root
