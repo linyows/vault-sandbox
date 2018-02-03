@@ -1,14 +1,12 @@
 #! /bin/bash -e
 
-set -e
-
 eval "$(cat scripts/env)"
 
 INIT_FILE=$(mktemp)
 echo "Init file: $INIT_FILE"
 cat $INIT_FILE
 
-vault operator init > $INIT_FILE
+vault operator init | sed -E "s/"$'\E'"\[([0-9]{1,2}(;[0-9]{1,2})*)?m//g" > $INIT_FILE
 
 for i in {1..3};do
   key=$(cat $INIT_FILE | grep -i "unseal key $i:" | awk '{print $4}')
@@ -16,7 +14,7 @@ for i in {1..3};do
 done
 
 token=$(cat $INIT_FILE | grep -i "root token:" | awk '{print $4}')
-vault auth $token
+vault login $token
 
 vault audit enable file path=/var/log/vault_audit.log
 vault secrets enable ssh
