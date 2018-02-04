@@ -137,32 +137,52 @@ Auto:
 ```sh
 $ brew install http://git.io/sshpass.rb
 $ vault ssh -mode=otp -role=otp_ops -strict-host-key-checking=no ops@localhost -p 10022
+Warning: Permanently added '[127.0.0.1]:10022' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.9.60-linuxkit-aufs x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+Last login: Sun Feb  4 14:16:21 2018 from 172.17.0.1
+ops@ubuntu:~$
 ```
 
 MySQL
 -----
 
 ```sh
-$ vault write mysql/config/connection connection_url="root:root@tcp(mysql:3306)/"
-The following warnings were returned from the Vault server:
-* Read access to this endpoint should be controlled via ACLs as it will return the connection URL as it is, including passwords, if any.
-$ vault write mysql/config/lease lease=10m lease_max=1h
-Success! Data written to: mysql/config/lease
-$ vault write mysql/roles/readonly \
-  sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';"
-Success! Data written to: mysql/roles/readonly
-$ vault read mysql/creds/readonly
-Key             Value
----             -----
-lease_id        mysql/creds/readonly/f94298b8-eb3f-9b92-e21b-d2de2f283b82
-lease_duration  30m0s
-lease_renewable true
-password        61a1e30a-3883-a3bd-b30f-82d96bb68db7
-username        read-root-f32607
-# mysql -uread-root-f32607 -hmysql -p
+$ vault write database/config/my-mysql-database plugin_name=mysql-database-plugin \
+  connection_url="root:root@tcp(mysql:3306)/" allowed_roles="my-role"
+WARNING! The following warnings were returned from Vault:
+
+  * Read access to this endpoint should be controlled via ACLs as it will
+  return the connection details as is, including passwords, if any.
+
+$ vault write database/roles/my-role db_name=my-mysql-database \
+  creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+  default_ttl="1h" max_ttl="24h"
+Success! Data written to: database/roles/my-role
+$ vault read database/creds/my-role
+Key                Value
+---                -----
+lease_id           database/creds/my-role/5d3c6224-9a07-eee4-46bb-986895ba072b
+lease_duration     1h
+lease_renewable    true
+password           A1a-17z30xpx6qx474ps
+username           v-root-my-role-zq43vq91vs3r6s174
+$ mysql -h 127.0.0.1 -P 13306 -u v-root-my-role-sv4576r13389rvpyw -p
 Enter password:
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MySQL connection id is 4
-Server version: 5.7.16 MySQL Community Server (GPL)
-Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 5.7.21 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2017, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
 ```
