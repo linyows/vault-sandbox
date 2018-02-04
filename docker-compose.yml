@@ -1,4 +1,5 @@
 consul:
+  hostname: consul
   build: ./consul/server
   dns:
     - '127.0.0.1'
@@ -7,6 +8,7 @@ consul:
     - '10053:53'
     - '8500:8500'
 vault:
+  hostname: vault
   build: ./vault
   ports:
     - '8200:8200'
@@ -17,6 +19,7 @@ vault:
     - consul
     - mysql
 sshd_ubuntu:
+  hostname: ubuntu
   build: ./sshd/ubuntu
   ports:
     - '10022:22'
@@ -27,6 +30,7 @@ sshd_ubuntu:
     - consul
     - vault
 sshd_centos:
+  hostname: centos
   build: ./sshd/centos
   ports:
     - '10222:22'
@@ -37,6 +41,7 @@ sshd_centos:
     - consul
     - vault
 mysql:
+  hostname: mysql
   image: mysql:5.7
   environment:
     MYSQL_ROOT_PASSWORD: root
@@ -46,6 +51,7 @@ mysql:
   ports:
     - '13306:3306'
 rails:
+  hostname: rails
   build: ./rails
   volumes:
     - ./rails/app:/app
