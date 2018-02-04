@@ -4,14 +4,14 @@ Vault Sandbox on Docker
 use docker-compose:
 
 ```sh
-$ docker-compose run -d
+$ docker-compose up -d
 ```
 
 use vault client or on mac:
 
 ```sh
 $ brew install vault
-$ export VAULT_ADDR=https://$(scripts/hostport --address vaultsandbox_vault_1 8200)
+$ export VAULT_ADDR=https://localhost:18200
 $ export VAULT_SKIP_VERIFY=true
 ```
 
@@ -21,71 +21,66 @@ Init VAULT
 setup:
 
 ```sh
-/ # vault init
-Unseal Key 1: 1/iBMPdC/UIvKl0JvGJHZNjiZSxeEXKbENum0Ota5z4B
-Unseal Key 2: NfJJ/+g6z+2zfElftgPH1RbjZyXXK6xHdty79N/rX6oC
-Unseal Key 3: fux26+tgpY10g9pDNkR3gRsoL1lxyIIc/WjvY/eJTQQD
-Unseal Key 4: KW5ZaKQyIZtLtwVSQf+gzgGh/LhdSyER9z/JFNDZtAsE
-Unseal Key 5: YnBmfKdoS/uMSJZOwbgQmgxqtMT7qA9KfIudg/i7pqUF
-Initial Root Token: 10283f97-bc50-229e-5771-b4f3f9996457
+Init file: /var/folders/js/frg3ythj7xd8llf35_5g96c80000gp/T/tmp.F1Azy8ZJ
+Key                Value
+---                -----
+Seal Type          shamir
+Sealed             true
+Total Shares       5
+Threshold          3
+Unseal Progress    1/3
+Unseal Nonce       9cc9bb16-0ded-9e17-0554-8b3dff823584
+Version            0.9.3
+HA Enabled         true
+HA Mode            sealed
+Key                Value
+---                -----
+Seal Type          shamir
+Sealed             true
+Total Shares       5
+Threshold          3
+Unseal Progress    2/3
+Unseal Nonce       9cc9bb16-0ded-9e17-0554-8b3dff823584
+Version            0.9.3
+HA Enabled         true
+HA Mode            sealed
+Key             Value
+---             -----
+Seal Type       shamir
+Sealed          false
+Total Shares    5
+Threshold       3
+Version         0.9.3
+Cluster Name    vault-cluster-9f700538
+Cluster ID      0a69f6ba-dc13-016f-b823-8c0b577fb1e8
+HA Enabled      true
+HA Mode         active
+HA Cluster      https://vault.node.consul:8201
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
 
-Vault initialized with 5 keys and a key threshold of 3. Please
-securely distribute the above keys. When the Vault is re-sealed,
-restarted, or stopped, you must provide at least 3 of these keys
-to unseal it again.
-
-Vault does not store the master key. Without at least 3 keys,
-your Vault will remain permanently sealed.
-/ # vault unseal
-Key (will be hidden):
-Sealed: true
-Key Shares: 5
-Key Threshold: 3
-Unseal Progress: 1
-/ # vault unseal
-Key (will be hidden):
-Sealed: true
-Key Shares: 5
-Key Threshold: 3
-Unseal Progress: 2
-/ # vault unseal
-Key (will be hidden):
-Sealed: false
-Key Shares: 5
-Key Threshold: 3
-Unseal Progress: 0
-/ # vault status
-Sealed: false
-Key Shares: 5
-Key Threshold: 3
-Unseal Progress: 0
-Version: 0.6.2
-Cluster Name: vault-cluster-6f314143
-Cluster ID: f9b4c398-889b-902a-c652-65368999a46a
-
-High-Availability Enabled: true
-        Mode: active
-        Leader: https://vault.node.consul:8200
-/ # vault auth
-Key (will be hidden):
-Successfully authenticated! You are now logged in.
-token: 10283f97-bc50-229e-5771-b4f3f9996457
-token_duration: 0
-token_policies: [root]
-/ # vault mounts
-Path        Type       Default TTL  Max TTL  Description
-cubbyhole/  cubbyhole  n/a          n/a      per-token private secret storage
-secret/     generic    system       system   generic secret storage
-sys/        system     n/a          n/a      system endpoints used for control, policy and debugging
+Key                Value
+---                -----
+token              500fc43c-8bc1-5f76-aed7-17fc778d1039
+token_accessor     b9fdf1a2-3b63-f122-e277-ba5cb3a854c8
+token_duration     ∞
+token_renewable    false
+token_policies     [root]
+Success! Enabled the file audit device at: file/
+Success! Data written to: ssh/roles/otp_ops
+Success! Enabled the database secrets engine at: database/
 ```
+
+### Consul DNS
 
 show dns for vault with consul:
 
 ```sh
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) standby.vault.service.consul. SRV +short
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) active.vault.service.consul. SRV +short
+$ dig standby.vault.service.consul. SRV +short @localhost -p 10053
+$ dig active.vault.service.consul. SRV +short @localhost -p 10053
 1 1 8200 vault.node.dc1.consul.
-$ dig @$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_consul_1 8600) vault.service.consul. +short
+$ dig vault.service.consul. +short @localhost -p 10053
 vault.node.consul.
 172.17.0.4
 ```
@@ -96,38 +91,52 @@ SSH
 ssh to container
 
 ```sh
-$ vault mount ssh
-Successfully mounted 'ssh' at 'ssh'!
+$ vault secrets enable ssh
+Success! Enabled the ssh secrets engine at: ssh/
 $ vault write ssh/roles/otp_ops key_type=otp default_user=ops cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
 ```
 
 manualy:
 
 ```sh
-$ vault write ssh/creds/otp_ops ip=192.168.99.1
-Key             Value
----             -----
-lease_id        ssh/creds/otp_key_role/aa0e0fbc-3be4-8ddf-8097-a5cb94cf3126
-lease_duration  768h0m0s
-lease_renewable false
-ip              192.168.99.1
-key             a6cbd37f-8522-f86c-1a00-8d44e5de438c
-key_type        otp
-port            22
-username        ops
+$ vault write ssh/creds/otp_ops ip=127.0.0.1 port=10022
+zsh: correct 'ssh/creds/otp_ops' to 'sshd/creds/otp_ops' [nyae]? n
+Key                Value
+---                -----
+lease_id           ssh/creds/otp_ops/20774dee-d22e-a795-b83a-570d1484fff7
+lease_duration     768h
+lease_renewable    false
+ip                 127.0.0.1
+key                8f7cb10b-9658-e571-48bc-c8468c8508af
+key_type           otp
+port               22
+username           ops
 
-$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-  ops@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_sshd_ubuntu_1 22)
-ops@192.168.99.100's password:
-ops@sshd:/$
+$ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ops@localhost -p 10022
+Warning: Permanently added '[localhost]:10022' (ECDSA) to the list of known hosts.
+ops@localhost's password:
+Creating directory '/home/ops'.
+Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.9.60-linuxkit-aufs x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+ops@ubuntu:~$
 ```
 
-auto:
+Auto:
 
 ```sh
 $ brew install http://git.io/sshpass.rb
-$ vault ssh -roletp_ops -strict-host-key-checking=no \
-  ops@$(docker-machine ip $DOCKER_MACHINE_NAME) -p $(scripts/hostport vaultsandbox_sshd_centos_1 22)
+$ vault ssh -mode=otp -role=otp_ops -strict-host-key-checking=no ops@localhost -p 10022
 ```
 
 MySQL
