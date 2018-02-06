@@ -8,8 +8,8 @@ consul:
     - '10053:53/tcp'
     - '10053:53/udp'
     - '8500:8500'
-vault:
-  hostname: vault
+vault-1:
+  hostname: vault-1
   build: ./vault
   ports:
     - '8200:8200'
@@ -19,7 +19,18 @@ vault:
   links:
     - consul
     - mysql
-sshd_ubuntu:
+vault-2:
+  hostname: vault-2
+  build: ./vault
+  ports:
+    - '8201:8200'
+  dns:
+    - '127.0.0.1'
+    - '8.8.8.8'
+  links:
+    - consul
+    - mysql
+sshd-1:
   hostname: ubuntu
   build: ./sshd/ubuntu
   ports:
@@ -29,8 +40,9 @@ sshd_ubuntu:
     - '8.8.8.8'
   links:
     - consul
-    - vault
-sshd_centos:
+    - vault-1
+    - vault-2
+sshd-2:
   hostname: centos
   build: ./sshd/centos
   ports:
@@ -40,7 +52,8 @@ sshd_centos:
     - '8.8.8.8'
   links:
     - consul
-    - vault
+    - vault-1
+    - vault-2
 mysql:
   hostname: mysql
   image: mysql:5.7
@@ -63,13 +76,21 @@ rails:
     - '8.8.8.8'
   links:
     - consul
-    - vault
     - mysql
-#laravel:
-#  image: linyows/laravel:5.3
+    - vault-1
+    - vault-2
+#proxy:
+#  image: jwilder/nginx-proxy
 #  volumes:
-#    - ./laravel:/app
+#    - /var/run/docker.sock:/tmp/docker.sock:ro
+#    - ./proxy/ssl:/etc/nginx/certs:ro
+#    - ./proxy/vhost.d:/etc/nginx/conf.d
+#  ports:
+#    - 80:80
+#    - 443:443
 #  links:
-#    - vault:vault
-#    - mysql:mysql
-#  command: [supervisord, --nodaemon, --configuration=/etc/supervisord.conf]
+#    - consul
+#  dns:
+#    - '127.0.0.1'
+#    - '8.8.8.8'
+#    - consul
