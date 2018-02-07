@@ -1,0 +1,3 @@
+/proxy/ssl/*.key
+/proxy/ssl/*.crt
+/proxy/vhost.d/default.conf
