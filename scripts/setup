@@ -1,5 +1,6 @@
 #! /bin/bash -e
 
+echo "Setup vault-1"
 eval "$(cat scripts/env)"
 
 INIT_FILE=$(mktemp)
@@ -16,6 +17,16 @@ done
 token=$(cat $INIT_FILE | grep -i "root token:" | awk '{print $4}')
 vault login $token
 
+echo "Setup vault-2"
+export VAULT_ADDR=https://localhost:8201
+for i in {1..3};do
+  key=$(cat $INIT_FILE | grep -i "unseal key $i:" | awk '{print $4}')
+  vault operator unseal $key
+done
+vault login $token
+
+eval "$(cat scripts/env)"
+
 vault audit enable file path=/var/log/vault_audit.log
 vault secrets enable ssh
 vault write ssh/roles/otp_ops key_type=otp default_user=ops cidr_list=127.0.0.0/8,172.0.0.0/8,192.0.0.0/8
@@ -25,4 +36,3 @@ vault secrets enable database
 # vault write auth/github/config organization=hashicorp
 # vault write auth/github/config base_url=https://github.mydomain.com/api/v3/
 # vault write auth/github/map/teams/root value=root
-
