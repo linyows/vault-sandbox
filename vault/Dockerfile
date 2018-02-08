@@ -4,8 +4,9 @@ MAINTAINER linyows <linyows@gmail.com>
 ENV VAULT_VERSION 0.9.3
 ENV VAULT_SHA256 4ba8b9dafb903d20b4c87e8954015a07a6995f53a9650ac02b39e6cae502645e
 ENV VAULT_ADDR https://127.0.0.1:8200
-ENV VAULT_REDIRECT_ADDR https://vault.node.consul:8200
-ENV VAULT_CLUSTER_ADDR https://vault.node.consul:8201
+#ENV VAULT_REDIRECT_ADDR https://vault.node.consul:8200
+#ENV VAULT_REDIRECT_ADDR https://vault.service.consul:8200
+#ENV VAULT_CLUSTER_ADDR https://vault.node.consul:8201
 ENV VAULT_SKIP_VERIFY true
 
 ENV COMMON_NAME *.node.consul
